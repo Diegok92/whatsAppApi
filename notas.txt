@@ -1,0 +1,209 @@
+Crear una aplicación web para enviar y recibir mensajes de WhatsApp utilizando únicamente HTML, CSS, JavaScript, y Node.js directamente con la API de WhatsApp sin intermediarios es complejo debido a las restricciones y requisitos de seguridad de WhatsApp. Actualmente, el acceso directo a la API de WhatsApp (WhatsApp Business API) requiere una cuenta de WhatsApp Business y es necesario pasar por un proceso de verificación.
+
+Voy a guiarte en cómo configurar un entorno de desarrollo en tu máquina y te proporcionaré una visión general de cómo podrías empezar a trabajar con la API de WhatsApp Business. Sin embargo, ten en cuenta que este proceso involucra pasos adicionales fuera del desarrollo del código, como la verificación y configuración de la cuenta con WhatsApp.
+
+Requisitos Previos
+Una cuenta de WhatsApp Business verificada.
+Acceso a la WhatsApp Business API.
+Un servidor para alojar tu aplicación.
+Paso 1: Instalación de Node.js y Configuración del Entorno
+Descargar e instalar Node.js:
+
+Ve a Node.js y descarga la versión LTS.
+Sigue las instrucciones para instalar Node.js en tu sistema.
+Instalar Visual Studio Code:
+
+Descarga e instala Visual Studio Code.
+Configurar el proyecto:
+
+Abre Visual Studio Code.
+
+Crea una nueva carpeta para tu proyecto. Puedes hacerlo desde la terminal de VS Code:
+
+bash
+Copiar código
+mkdir whatsapp-webapp
+cd whatsapp-webapp
+Inicializa un proyecto de Node.js:
+
+bash
+Copiar código
+npm init -y
+Esto creará un archivo package.json en tu carpeta de proyecto.
+
+Paso 2: Crear la Estructura del Proyecto
+Crear la estructura de carpetas y archivos:
+Dentro de tu carpeta whatsapp-webapp, crea las siguientes carpetas y archivos:
+
+bash
+Copiar código
+mkdir public
+mkdir public/css
+mkdir public/js
+touch public/index.html
+touch public/css/style.css
+touch public/js/main.js
+touch server.js
+Paso 3: Configuración del Servidor Node.js
+Instalar dependencias necesarias:
+
+Usaremos express para el servidor y axios para hacer solicitudes HTTP.
+
+bash
+Copiar código
+npm install express axios
+Configurar server.js:
+
+Abre server.js y añade el siguiente código para configurar un servidor básico:
+
+javascript
+Copiar código
+const express = require('express');
+const app = express();
+const axios = require('axios');
+
+app.use(express.static('public'));
+
+// Endpoint para enviar mensajes
+app.post('/send-message', async (req, res) => {
+  try {
+    const response = await axios.post('https://your-whatsapp-api-url', {
+      // Aquí va la configuración de tu solicitud a la API de WhatsApp
+    });
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+Paso 4: Crear la Interfaz de Usuario
+Configurar index.html:
+
+Abre public/index.html y añade el siguiente código básico de HTML:
+
+html
+Copiar código
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp WebApp</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>Enviar Mensaje de WhatsApp</h1>
+    <form id="messageForm">
+        <input type="text" id="phoneNumber" placeholder="Número de teléfono" required>
+        <input type="text" id="message" placeholder="Mensaje" required>
+        <button type="submit">Enviar</button>
+    </form>
+    <script src="js/main.js"></script>
+</body>
+</html>
+Configurar style.css:
+
+Abre public/css/style.css y añade algunos estilos básicos:
+
+css
+Copiar código
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, button {
+    padding: 10px;
+    font-size: 16px;
+}
+Configurar main.js:
+
+Abre public/js/main.js y añade el siguiente código para manejar el envío del formulario:
+
+javascript
+Copiar código
+document.getElementById('messageForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const phoneNumber = document.getElementById('phoneNumber').value;
+  const message = document.getElementById('message').value;
+
+  try {
+    const response = await fetch('/send-message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phoneNumber, message })
+    });
+
+    const data = await response.json();
+    alert(`Mensaje enviado: ${data.message}`);
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+});
+Paso 5: Configuración y Uso de la API de WhatsApp Business
+Registrar una cuenta de WhatsApp Business:
+
+Ve al sitio oficial de WhatsApp Business y sigue los pasos para registrar una cuenta de WhatsApp Business. Este proceso incluye la verificación de tu negocio.
+Obtener credenciales de API:
+
+Después de la verificación, WhatsApp te proporcionará las credenciales necesarias para acceder a su API (token de acceso, URL del endpoint, etc.).
+Configurar la solicitud a la API de WhatsApp en server.js:
+
+Actualiza el endpoint en server.js con la URL y las credenciales que obtuviste:
+
+javascript
+Copiar código
+app.post('/send-message', async (req, res) => {
+  const { phoneNumber, message } = req.body;
+
+  try {
+    const response = await axios.post('https://your-whatsapp-api-url/messages', {
+      to: phoneNumber,
+      type: 'text',
+      text: { body: message }
+    }, {
+      headers: {
+        'Authorization': `Bearer YOUR_ACCESS_TOKEN`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.send(response.data);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+Paso 6: Ejecutar la Aplicación
+Iniciar el servidor:
+
+Abre la terminal en Visual Studio Code y ejecuta el siguiente comando:
+
+bash
+Copiar código
+node server.js
+Abrir la aplicación en el navegador:
+
+Abre tu navegador y ve a http://localhost:3000. Deberías ver el formulario para enviar mensajes.
+Consideraciones Finales
+Asegúrate de cumplir con las políticas de WhatsApp para evitar bloqueos.
+Mantén tus credenciales seguras y no las compartas públicamente.
+La API de WhatsApp Business está destinada a ser utilizada por empresas verificadas y puede implicar costos dependiendo del uso.
+Con estos pasos, tendrás una aplicación web básica que puede enviar mensajes de WhatsApp utilizando la API de WhatsApp Business. Recuerda que la configuración y obtención de acceso a la API de WhatsApp Business es un proceso separado y esencial para que tu aplicación funcione correctamente.
